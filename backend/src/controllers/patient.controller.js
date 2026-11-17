@@ -1,6 +1,6 @@
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { sendSuccess } from '../utils/response.js';
-import * as patientService from '../services/patient.service.js';
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { sendSuccess } from "../utils/response.js";
+import * as patientService from "../services/patient.service.js";
 
 export const list = asyncHandler(async (req, res) => {
   const { data, meta } = await patientService.listPatients(req.query);

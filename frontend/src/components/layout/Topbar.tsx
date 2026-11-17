@@ -17,7 +17,8 @@ import { NAV_ITEMS } from '@/lib/constants';
 import { initials } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { baseApi } from '@/store/api/baseApi';
-import { logout, selectUser } from '@/store/slices/authSlice';
+import { useLogoutMutation } from '@/store/api/authApi';
+import { selectUser } from '@/store/slices/authSlice';
 
 const titleFor = (pathname: string) => {
   if (/^\/doctors\/[^/]+/.test(pathname)) return 'Doctor details';
@@ -30,8 +31,10 @@ export const Topbar = memo(function Topbar({ onMenuClick }: { onMenuClick: () =>
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    await logout();
     router.replace('/login');
     dispatch(baseApi.util.resetApiState());
   };

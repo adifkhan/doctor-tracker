@@ -1,6 +1,6 @@
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { sendSuccess } from '../utils/response.js';
-import * as doctorService from '../services/doctor.service.js';
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { sendSuccess } from "../utils/response.js";
+import * as doctorService from "../services/doctor.service.js";
 
 export const list = asyncHandler(async (req, res) => {
   const { data, meta } = await doctorService.listDoctors(req.query);
@@ -20,12 +20,17 @@ export const getById = asyncHandler(async (req, res) => {
 });
 
 export const listPatients = asyncHandler(async (req, res) => {
-  const { data, meta } = await doctorService.listDoctorPatients(req.params.id, req.query);
+  const { data, meta } = await doctorService.listDoctorPatients(
+    req.params.id,
+    req.query,
+  );
   sendSuccess(res, data, { meta });
 });
 
 export const addPatient = asyncHandler(async (req, res) => {
-  sendSuccess(res, await doctorService.addPatient(req.params.id, req.body), { status: 201 });
+  sendSuccess(res, await doctorService.addPatient(req.params.id, req.body), {
+    status: 201,
+  });
 });
 
 export const removePatient = asyncHandler(async (req, res) => {

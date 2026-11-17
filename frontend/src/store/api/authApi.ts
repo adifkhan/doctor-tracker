@@ -4,9 +4,12 @@ import { baseApi, unwrap } from './baseApi';
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    login: build.mutation<{ token: string; user: User }, LoginValues>({
+    login: build.mutation<{ user: User }, LoginValues>({
       query: (body) => ({ url: '/auth/login', method: 'POST', body }),
-      transformResponse: unwrap<{ token: string; user: User }>,
+      transformResponse: unwrap<{ user: User }>,
+    }),
+    logout: build.mutation<void, void>({
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
     }),
     getMe: build.query<User, void>({
       query: () => '/auth/me',
@@ -15,4 +18,4 @@ export const authApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation, useGetMeQuery } = authApi;
+export const { useLoginMutation, useLogoutMutation, useGetMeQuery } = authApi;

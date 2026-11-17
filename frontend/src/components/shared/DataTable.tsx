@@ -1,8 +1,15 @@
-import type { LucideIcon } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
-import { EmptyState, ErrorState } from './EmptyState';
+import type { LucideIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { EmptyState, ErrorState } from "./EmptyState";
 
 export interface Column<T> {
   header: string;
@@ -41,11 +48,23 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (error && !rows) return <ErrorState message={error} onRetry={onRetry} />;
   if (!loading && rows?.length === 0) {
-    return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDescription} action={emptyAction} />;
+    return (
+      <EmptyState
+        icon={emptyIcon}
+        title={emptyTitle}
+        description={emptyDescription}
+        action={emptyAction}
+      />
+    );
   }
 
   return (
-    <Table className={cn('min-w-[760px] transition-opacity', fetching && !loading && 'opacity-60')}>
+    <Table
+      className={cn(
+        "min-w-190 transition-opacity",
+        fetching && !loading && "opacity-60",
+      )}
+    >
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           {columns.map((c) => (
