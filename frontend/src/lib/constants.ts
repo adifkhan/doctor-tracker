@@ -3,7 +3,7 @@ import { LayoutDashboard, Stethoscope, Users } from "lucide-react";
 // export const API_URL =
 //   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
 
-export const API_URL = "/api/v1";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
 
 // Must match the cookie name the API sets
 export const AUTH_COOKIE = "dt_token";

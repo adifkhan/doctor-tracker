@@ -38,7 +38,7 @@ Main tools used: Next.js 16 (App Router, TypeScript), React 19, Redux Toolkit wi
 cd backend
 cp .env.example .env     # set MONGODB_URI and JWT_SECRET at least
 npm install
-npm run seed             # creates the admin user if it doesn't exist yet
+npm run seed             # creates the admin user if it doesn't exist along with some doctors and their corresponding patients
 npm run dev              # http://localhost:5000
 ```
 
@@ -61,13 +61,14 @@ Please change these (and `JWT_SECRET`) before deploying anywhere real. Running t
 
 ### Environment variables
 
-| Where    | Variable                       | What it's for                                        |
-| -------- | ------------------------------ | ---------------------------------------------------- |
-| backend  | `PORT`                         | API port (5000)                                      |
-| backend  | `MONGODB_URI`                  | MongoDB connection string                            |
-| backend  | `JWT_SECRET`, `JWT_EXPIRES_IN` | Signing login tokens                                 |
-| backend  | `CLIENT_URL`                   | Frontend origin allowed by CORS                      |
-| frontend | `NEXT_PUBLIC_API_URL`          | Where the API lives (`http://localhost:5000/api/v1`) |
+| Where    | Variable                       | What it's for                                 |
+| -------- | ------------------------------ | --------------------------------------------- |
+| backend  | `PORT`                         | API port (5000)                               |
+| backend  | `MONGODB_URI`                  | MongoDB connection string                     |
+| backend  | `JWT_SECRET`, `JWT_EXPIRES_IN` | Signing login tokens                          |
+| backend  | `CLIENT_URL`                   | Frontend origin allowed by CORS               |
+| frontend | `API_ORIGIN`                   | Where the API lives (`http://localhost:5000`) |
+| frontend | `NEXT_PUBLIC_API_URL`          | API suffix (`/api/v1`)                        |
 
 ### Production build
 
@@ -93,7 +94,7 @@ The two apps only talk over REST, and every API route except login needs a JWT.
 
 **Backend.** Each layer has one job. Routes wire up URLs, auth and validation. Controllers read the request and send the response. Services hold the business rules. Repositories are the only place that touches Mongoose. Errors are thrown as `ApiError`s and turned into one consistent JSON shape by a single error handler (validation, bad ids, duplicates and JWT problems included).
 
-**Frontend.** Pages are thin and the real work lives in feature components. RTK Query handles fetching and caching, and a small auth slice holds the logged-in user and token. Reusable pieces (table, filters, pagination, search box, confirm dialog) are shared between the doctor and patient screens.
+**Frontend.** Pages are thin and the real work lives in feature components. RTK Query handles fetching and caching, and a small auth slice holds the logged-in user. Reusable pieces (table, filters, pagination, search box, confirm dialog) are shared between the doctor and patient screens.
 
 ```
 backend/src    config, models, routes, controllers, services, repositories, validators, middlewares, utils, seeds
