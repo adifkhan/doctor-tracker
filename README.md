@@ -4,7 +4,7 @@ Doctor Tracker is a small admin portal for managing doctors and the patients ass
 
 ## What's in the box
 
-- Admin login with a JWT stored in an HttpOnly cookie, and protected pages
+- Admin login with JWT, and protected pages
 - Doctors list with search (name, phone, email), filters (specialization, hospital, date range) and pagination
 - Doctor details page with that doctor's patients, plus add and delete patient
 - Patients list with search, filters (condition, doctor, gender, date range), edit and delete
@@ -61,13 +61,13 @@ Please change these (and `JWT_SECRET`) before deploying anywhere real. Running t
 
 ### Environment variables
 
-| Where    | Variable                       | What it's for                                                         |
-| -------- | ------------------------------ | --------------------------------------------------------------------- |
-| backend  | `PORT`                         | API port (5000)                                                       |
-| backend  | `MONGODB_URI`                  | MongoDB connection string                                             |
-| backend  | `JWT_SECRET`, `JWT_EXPIRES_IN` | Signing login tokens                                                  |
-| backend  | `CLIENT_URL`                   | Frontend origin allowed by CORS (must match the frontend URL exactly) |
-| frontend | `NEXT_PUBLIC_API_URL`          | Where the API lives (`http://localhost:5000/api/v1`)                  |
+| Where    | Variable                       | What it's for                                        |
+| -------- | ------------------------------ | ---------------------------------------------------- |
+| backend  | `PORT`                         | API port (5000)                                      |
+| backend  | `MONGODB_URI`                  | MongoDB connection string                            |
+| backend  | `JWT_SECRET`, `JWT_EXPIRES_IN` | Signing login tokens                                 |
+| backend  | `CLIENT_URL`                   | Frontend origin allowed by CORS                      |
+| frontend | `NEXT_PUBLIC_API_URL`          | Where the API lives (`http://localhost:5000/api/v1`) |
 
 ### Production build
 
@@ -80,20 +80,20 @@ cd frontend && npm run build && npm start
 
 ```
 Browser (Next.js, Redux Toolkit + RTK Query)
-        |  same-origin /api/v1  (Next.js rewrites it to the API)
+        |  REST + Bearer token
         v
-Express API  /api/v1   (auth via HttpOnly cookie)
+Express API  /api/v1
   routes -> controllers -> services -> repositories -> Mongoose
         |
         v
      MongoDB
 ```
 
-The two apps only talk over REST. Login sets an HttpOnly cookie holding the JWT, and every other API route requires it.
+The two apps only talk over REST, and every API route except login needs a JWT.
 
 **Backend.** Each layer has one job. Routes wire up URLs, auth and validation. Controllers read the request and send the response. Services hold the business rules. Repositories are the only place that touches Mongoose. Errors are thrown as `ApiError`s and turned into one consistent JSON shape by a single error handler (validation, bad ids, duplicates and JWT problems included).
 
-**Frontend.** Pages are thin and the real work lives in feature components. RTK Query handles fetching and caching, and a small auth slice holds the logged-in user. Reusable pieces (table, filters, pagination, search box, confirm dialog) are shared between the doctor and patient screens.
+**Frontend.** Pages are thin and the real work lives in feature components. RTK Query handles fetching and caching, and a small auth slice holds the logged-in user and token. Reusable pieces (table, filters, pagination, search box, confirm dialog) are shared between the doctor and patient screens.
 
 ```
 backend/src    config, models, routes, controllers, services, repositories, validators, middlewares, utils, seeds
@@ -108,7 +108,7 @@ frontend/src   app (routes), components (ui, layout, shared, features), store (s
 Doctor and patient lists are searched, filtered and paginated, so indexes are chosen to match those queries instead of indexing everything. Doctors have a unique email, a `{ specialization, hospital }` index for the filters, and `createdAt` for the default sort and date range. Patients have `{ doctor, createdAt }` for a doctor's patient list, plus `condition`, `createdAt` and `phone`. Lists use `.lean()` and run the page query and the count in parallel. Patient counts for the doctors on a page come from one grouped query, not one count per row, so there's no N+1. Search is an escaped, case-insensitive regex over name, phone and email. That's fine at this size, and it's the first thing I'd swap for a text or Atlas Search index if the data grew a lot.
 
 **2. RTK Query instead of hand-written thunks.**
-Nearly all frontend state is server data, so RTK Query does most of the work: caching, loading and error states, and tag-based invalidation. Adding or deleting a patient automatically refreshes the doctor list (patient count), the patient lists and the dashboard, with no manual refetching. Redux itself only keeps the small bit of real client state, the logged-in user. The login token never touches JavaScript: the API sets it as an HttpOnly, SameSite cookie, so an XSS bug can't read it. The browser calls the API directly with credentials: 'include', and the API allows the frontend origin through CORS with credentials enabled. The same cookie lets the Next.js proxy redirect logged-out visitors before a page renders.
+Nearly all frontend state is server data, so RTK Query does most of the work: caching, loading and error states, and tag-based invalidation. Adding or deleting a patient automatically refreshes the doctor list (patient count), the patient lists and the dashboard, with no manual refetching. Redux itself only keeps the small bit of real client state, the logged-in user. The token is also stored in a cookie so the Next.js proxy can redirect logged-out visitors before a page renders, because it can't read localStorage.
 
 ## Visual Evidence
 

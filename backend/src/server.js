@@ -4,6 +4,7 @@ import { connectDB, disconnectDB } from "./config/db.js";
 
 const start = async () => {
   await connectDB();
+
   const server = app.listen(env.PORT, () =>
     console.log(`API listening on port ${env.PORT}`),
   );
@@ -13,6 +14,7 @@ const start = async () => {
       await disconnectDB();
       process.exit(0);
     });
+
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
 };
